@@ -1,0 +1,60 @@
+{% set name = "deepmd-kit" %}
+{% set version = "0.12.8" %}
+
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://github.com/deepmodeling/deepmd-kit/archive/v{{ version }}.tar.gz
+  sha256: b54547b1aab40a792fb99341079306152132669934af2ee70131b1690d290e0b
+  #   patches:
+  #   - cxxflags.patch
+
+build:
+  number: 0
+  string: "{{ PKG_BUILDNUM }}_{{ dp_variant }}"
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+    - cmake  >=3.7
+    - make  # [unix]
+
+  host:
+    # - libtensorflow_cc {{ tf }}*
+    - libtensorflow_cc 
+    - cudatoolkit {{ cudatoolkit }}*  # [dp_variant == 'gpu']
+    - cudnn {{ cudnn }}*  # [dp_variant == 'gpu']
+
+  run:
+    - python >=3.6
+    - numpy >=1.13.3,<2.0a0
+    - scipy
+    - libtensorflow_cc {{ tf }}*
+    - libprotobuf {{ libprotobuf }}*
+      #  - tensorflow {{ tensorflow }}*  # [dp_variant != 'gpu']
+    - tensorflow-gpu {{ tensorflow }}*  # [dp_variant == 'gpu']
+    - {{ pin_compatible('cudatoolkit', max_pin='x.x') }}  # [dp_variant == 'gpu']
+    - {{ pin_compatible('cudnn') }}  # [dp_variant == 'gpu']
+
+test:
+  commands:
+    - dp_train -h
+    - dp_test -h
+    - dp_frz -h
+
+about:
+  home: https://github.com/deepmodeling/deepmd-kit
+  license: LGPL-3.0
+  license_family: LGPL
+  license_file: LICENSE
+  summary: 'A deep learning package for many-body potential energy representation and molecular dynamics'
+  doc_url: https://github.com/deepmodeling/deepmd-kit
+  dev_url: https://github.com/deepmodeling/deepmd-kit
+
+extra:
+  recipe-maintainers:
+    - njzjz
